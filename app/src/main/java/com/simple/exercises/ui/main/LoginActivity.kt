@@ -55,6 +55,10 @@ class LoginActivity : BaseActivity(), LoginContact.View {
         DialogUtil.showAlertDialog(this, getString(R.string.empty_password))
     }
 
+    override fun loginResult() {
+
+    }
+
 
 
 }

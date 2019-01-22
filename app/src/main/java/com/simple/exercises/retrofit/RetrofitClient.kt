@@ -1,5 +1,6 @@
 package com.simple.exercises.retrofit
 
+import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
@@ -22,5 +23,16 @@ object RetrofitClient {
             }
             return mInstance!!
         }
+
+    fun initRetrofit(client: OkHttpClient) {
+        if (mInstance == null) {
+            mInstance = Retrofit.Builder()
+                .baseUrl("http://login.codematrixmedia.com/api/account/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                .client(client)
+                .build()
+        }
+    }
 
 }
