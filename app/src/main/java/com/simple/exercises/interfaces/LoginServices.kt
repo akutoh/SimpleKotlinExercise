@@ -1,6 +1,7 @@
 package com.simple.exercises.interfaces
 
 
+import com.simple.exercises.retrofit.response.LoginResponse
 import io.reactivex.Observable
 import okhttp3.RequestBody
 import retrofit2.http.Body
@@ -13,6 +14,6 @@ import java.util.*
 interface LoginServices {
 
     @POST("login")
-    fun login(@Body body: RequestBody) : Observable<String>
+    fun login(@Body body: RequestBody) : Observable<LoginResponse>
 
 }

@@ -1,15 +1,16 @@
 package com.simple.exercises.ui.main
 
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity;
-import android.view.inputmethod.EditorInfo
-import android.widget.TextView
+import android.view.View
 import com.simple.exercises.R
 import com.simple.exercises.base.BaseActivity
 import com.simple.exercises.extensions.hideSoftKeyboard
+import com.simple.exercises.extensions.switchActivity
+import com.simple.exercises.retrofit.response.LoginResponse
 import com.simple.exercises.ui.contract.LoginContact
 import com.simple.exercises.ui.presenter.LoginPresenter
 import com.simple.exercises.utils.DialogUtil
+import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.activity_login.*
 
 /**
@@ -18,6 +19,7 @@ import kotlinx.android.synthetic.main.activity_login.*
 class LoginActivity : BaseActivity(), LoginContact.View {
 
     private lateinit var mPresenter: LoginContact.Presenter
+    private var mCompositeDisposable: CompositeDisposable? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,16 +27,8 @@ class LoginActivity : BaseActivity(), LoginContact.View {
     }
 
     override fun initData() {
-        mPresenter = LoginPresenter(this)
-
-        etPassword.setOnEditorActionListener(TextView.OnEditorActionListener { v, actionId, event ->
-            when (actionId) {
-                EditorInfo.IME_ACTION_GO -> kotlin.run { onLoginClick(); true }
-                else -> {
-                    return@OnEditorActionListener false
-                }
-            }
-        })
+        mCompositeDisposable = CompositeDisposable()
+        mPresenter = LoginPresenter(this, mCompositeDisposable)
 
         btnLogin.setOnClickListener { onLoginClick() }
     }
@@ -45,6 +39,7 @@ class LoginActivity : BaseActivity(), LoginContact.View {
 
         mPresenter.login(username, password)
         hideSoftKeyboard()
+
     }
 
     override fun showUsernameRequired() {
@@ -55,8 +50,32 @@ class LoginActivity : BaseActivity(), LoginContact.View {
         DialogUtil.showAlertDialog(this, getString(R.string.empty_password))
     }
 
-    override fun loginResult() {
+    override fun loginSuccess(response: LoginResponse) {
+        switchActivity(HomePageActivity::class.java, true)
+    }
 
+    override fun loginFail(error: Throwable) {
+        DialogUtil.showAlertDialog(this, error.message)
+    }
+
+    override fun showLoading() {
+        pbLoading.visibility = View.VISIBLE
+    }
+
+    override fun hideLoading() {
+        pbLoading.visibility = View.GONE
+    }
+
+    override fun disableViews() {
+        tilEmail.isEnabled = false
+        tilPassword.isEnabled = false
+        btnLogin.isEnabled = false
+    }
+
+    override fun enableViews() {
+        tilEmail.isEnabled = true
+        tilPassword.isEnabled = true
+        btnLogin.isEnabled = true
     }
 
 

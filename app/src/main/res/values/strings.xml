@@ -8,4 +8,6 @@
 
     <string name="empty_username">Username cannot be null</string>
     <string name="empty_password">Password cannot be null</string>
+    <string name="exercise">Exercise</string>
+    <string name="congratulations">Congratulations!!!!!</string>
 </resources>

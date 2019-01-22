@@ -1,5 +1,7 @@
 package com.simple.exercises.ui.contract
 
+import com.simple.exercises.retrofit.response.LoginResponse
+
 /**
  * Created by R.M. Miko C. Morales on 1/22/19.
  */
@@ -13,7 +15,17 @@ interface LoginContact {
 
         fun showPasswordRequired()
 
-        fun loginResult()
+        fun showLoading()
+
+        fun hideLoading()
+
+        fun disableViews()
+
+        fun enableViews()
+
+        fun loginSuccess(response: LoginResponse)
+
+        fun loginFail(error: Throwable)
 
     }
 

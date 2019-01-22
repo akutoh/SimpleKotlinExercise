@@ -1,9 +1,8 @@
 package com.simple.exercises.ui.presenter
 
-import android.util.Log
 import com.google.gson.Gson
-import com.simple.exercises.interfaces.LoginServices
-import com.simple.exercises.retrofit.RetrofitClient
+import com.simple.exercises.app.App
+import com.simple.exercises.retrofit.response.LoginResponse
 import com.simple.exercises.ui.contract.LoginContact
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -15,35 +14,38 @@ import java.util.HashMap
 /**
  * Created by R.M. Miko C. Morales on 1/22/19.
  */
-class LoginPresenter(private val mView: LoginContact.View?): LoginContact.Presenter {
+class LoginPresenter(private val mView: LoginContact.View?, private val mCompositeDisposable: CompositeDisposable?): LoginContact.Presenter {
 
     override fun login(username: String, password: String) {
 
         when {
-
             username.isEmpty() -> mView?.showUsernameRequired()
             password.isEmpty() -> mView?.showPasswordRequired()
             else -> {
-                Log.d("syet", "login")
+                mView?.disableViews()
+                mView?.showLoading()
                 var body = HashMap<String, String>()
                 body.put("username", username)
                 body.put("password", password)
 
-                val retrofit = RetrofitClient.instance
-                val service = retrofit.create(LoginServices::class.java)
-
-                val compositeDisposable: CompositeDisposable? = null
-                if (compositeDisposable != null) {
-                    compositeDisposable.add(service.login(createBody(body)).subscribeOn(Schedulers.io())
+                mCompositeDisposable?.add(App.loginServices.login(createBody(body))
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe {
-                            Log.d("syet", "syet")
-                        })
-                }
+                        .subscribeOn(Schedulers.io())
+                        .subscribe(this::handleResponse, this::handleError))
             }
-
         }
+    }
 
+    private fun handleResponse(response: LoginResponse) {
+        mView?.hideLoading()
+        mView?.enableViews()
+        mView?.loginSuccess(response)
+    }
+
+    private fun handleError(error: Throwable) {
+        mView?.hideLoading()
+        mView?.enableViews()
+        mView?.loginFail(error)
     }
 
     fun createBody(hashMap: HashMap<*, *>): RequestBody {
